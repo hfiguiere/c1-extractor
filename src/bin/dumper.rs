@@ -165,22 +165,6 @@ fn dump_keywords(root: i64, keywords: &BTreeMap<i64, Keyword>, tree: &KeywordTre
 }
 
 fn dump_folders(folders: &[Folder]) {
-    /*
-    println!("Root Folders");
-    println!("+---------+--------------------------------------+------------------+----------------------------");
-    println!("| id      | uuid                                 | name             | absolute path");
-    println!("+---------+--------------------------------------+------------------+----------------------------");
-    for root in &folders.roots {
-        println!(
-            "| {:>7} | {} | {:<16} | {:<26}",
-            root.id(),
-            root.uuid(),
-            root.name,
-            root.absolute_path
-        );
-    }
-    println!("+---------+--------------------------------------+------------------+----------------------------");
-     */
     println!("Folders");
     println!("+---------+---------+-------+----------------------------+----------");
     println!(
