@@ -14,7 +14,7 @@ use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 use docopt::Docopt;
-use c1::{Catalog, CatalogVersion, Collection, Image, Folders, Keyword, KeywordTree};
+use c1::{CoId, Catalog, CatalogVersion, Collection, Image, Folders, Keyword, KeywordTree};
 
 const USAGE: &str = "
 Usage:
@@ -83,18 +83,16 @@ fn process_dump(args: &Args) {
                 return;
             }
         }
-/*
+
         {
-            let root_keyword_id = catalog.root_keyword_id;
             let keywordtree = catalog.load_keywords_tree();
             let keywords = catalog.load_keywords();
-            println!("\tKeywords count: {}", keywords.len());
 
             if args.flag_all || args.flag_keywords {
-                dump_keywords(root_keyword_id, &keywords, &keywordtree);
+                dump_keywords(0, &keywords, &keywordtree);
             }
         }
-
+/*
         {
             let folders = catalog.load_folders();
             if args.flag_all || args.flag_folders {
@@ -124,7 +122,7 @@ fn process_dump(args: &Args) {
     }
 }
 
-fn print_keyword(level: i32, id: i64, keywords: &BTreeMap<i64, Keyword>, tree: &KeywordTree) {
+fn print_keyword(level: i32, id: i64, keywords: &BTreeMap<CoId, Keyword>, tree: &KeywordTree) {
     if let Some(keyword) = keywords.get(&id) {
         let mut indent = String::from("");
         if level > 0 {
@@ -133,11 +131,9 @@ fn print_keyword(level: i32, id: i64, keywords: &BTreeMap<i64, Keyword>, tree: &
             }
             indent.push_str("+ ")
         }
-        /*
         println!(
-            "| {:>7} | {} | {:>7} | {}{}",
+            "| {:>7} | {:>7} | {}{}",
             keyword.id(),
-            keyword.uuid(),
             keyword.parent,
             indent,
             keyword.name
@@ -145,22 +141,25 @@ fn print_keyword(level: i32, id: i64, keywords: &BTreeMap<i64, Keyword>, tree: &
         let children = tree.children_for(id);
         for child in children {
             print_keyword(level + 1, child, keywords, tree);
-        }*/
+        }
     }
 }
 
 fn dump_keywords(root: i64, keywords: &BTreeMap<i64, Keyword>, tree: &KeywordTree) {
     println!("Keywords");
     println!(
-        "+---------+--------------------------------------+---------+----------------------------"
+        "+---------+---------+----------------------------"
     );
-    println!("| id      | uuid                                 | parent  | name");
+    println!("| id      | parent  | name");
     println!(
-        "+---------+--------------------------------------+---------+----------------------------"
+        "+---------+---------+----------------------------"
     );
-    print_keyword(0, root, keywords, tree);
+    let children = tree.children_for(root);
+    for child in children {
+        print_keyword(0, child, keywords, tree);
+    }
     println!(
-        "+---------+--------------------------------------+---------+----------------------------"
+        "+---------+---------+----------------------------"
     );
 }
 

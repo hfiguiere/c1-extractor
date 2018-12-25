@@ -4,10 +4,13 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-use std::collections::HashMap;
+use std::collections::{HashMap, BTreeMap};
 use std::path::{Path, PathBuf};
 
 use rusqlite::Connection;
+
+use super::CoId;
+use super::{Keyword, KeywordTree};
 
 const DB_FILENAME: &str = "Capture One Catalog.cocatalogdb";
 
@@ -29,10 +32,13 @@ pub struct Catalog {
     path: PathBuf,
     pub version: i32,
     pub catalog_version: CatalogVersion,
-    pub root_collection_id: i64,
+    pub root_collection_id: CoId,
 
+    /// The keywords, mapped in the local `CoId`
+    keywords: BTreeMap<CoId, Keyword>,
     /// The entities
-    entities: HashMap<i32, String>,
+    entities_id_to_name: HashMap<CoId, String>,
+    entities_name_to_id: HashMap<String, CoId>,
     /// The sqlite connection to the catalog
     dbconn: Option<Connection>,
 }
@@ -74,9 +80,10 @@ impl Catalog {
                 if let Ok(mut stmt) = conn.prepare("SELECT Z_ENT, ZNAME FROM ZENTITIES") {
                     let mut rows = stmt.query(&[]).unwrap();
                     while let Some(Ok(row)) = rows.next() {
-                        let ent: i32 = row.get(0);
+                        let ent: CoId = row.get(0);
                         let name: String = row.get(1);
-                        self.entities.insert(ent, name);
+                        self.entities_id_to_name.insert(ent, name.clone());
+                        self.entities_name_to_id.insert(name, ent);
                     }
                 }
                 if let Ok(mut stmt) = conn.prepare("SELECT ZROOTCOLLECTION FROM ZDOCUMENTCONTENT") {
@@ -87,5 +94,37 @@ impl Catalog {
                 }
             }
         }
+    }
+
+    pub fn load_keywords_tree(&mut self) -> KeywordTree {
+        let keywords = self.load_keywords();
+
+        let mut tree = KeywordTree::new();
+        let keyword = Keyword::default();
+        tree.add_child(&keyword);
+        tree.add_children(keywords);
+
+        tree
+    }
+
+    pub fn load_keywords(&mut self) -> &BTreeMap<CoId, Keyword> {
+        if self.keywords.is_empty() {
+            if let Some(ref conn) = self.dbconn {
+                if let Some(entity) = self.entities_name_to_id.get("Keyword") {
+                    if let Ok(mut stmt) = conn.prepare("SELECT Z_PK, ZNAME, ZPARENT FROM ZKEYWORD WHERE Z_ENT=?1") {
+                        let mut rows = stmt.query(&[entity]).unwrap();
+                        while let Some(Ok(row)) = rows.next() {
+                            let keyword = Keyword {
+                                id: row.get(0),
+                                name: row.get(1),
+                                parent: row.get_checked(2).unwrap_or(0)
+                            };
+                            self.keywords.insert(keyword.id(), keyword);
+                        }
+                    }
+                }
+            }
+        }
+        &self.keywords
     }
 }
