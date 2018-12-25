@@ -77,7 +77,8 @@ fn process_dump(args: &Args) {
         println!("\tRoot collection id: {}", catalog.root_collection_id);
 
         match catalog.catalog_version {
-            CatalogVersion::Co12 => {}
+            CatalogVersion::Co12 |
+            CatalogVersion::Co11 => {}
             _ => {
                 println!("Unsupported catalog version");
                 return;

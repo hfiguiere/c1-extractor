@@ -17,12 +17,23 @@ const DB_FILENAME: &str = "Capture One Catalog.cocatalogdb";
 #[derive(Debug, PartialEq)]
 pub enum CatalogVersion {
     Unknown,
+    Co11,
     Co12
 }
 
 impl Default for CatalogVersion {
     fn default() -> CatalogVersion {
         CatalogVersion::Unknown
+    }
+}
+
+impl From<i32> for CatalogVersion {
+    fn from(val: i32) -> Self {
+        match val {
+            1200 => CatalogVersion::Co12,
+            1106 => CatalogVersion::Co11,
+            _ => CatalogVersion::Unknown,
+        }
     }
 }
 
@@ -69,10 +80,7 @@ impl Catalog {
                 let mut rows = stmt.query(&[]).unwrap();
                 if let Some(Ok(row)) = rows.next() {
                     self.version = row.get(0);
-                    self.catalog_version = match self.version {
-                        1200 => CatalogVersion::Co12,
-                        _ => CatalogVersion::Unknown,
-                    }
+                    self.catalog_version = CatalogVersion::from(self.version);
                 }
             }
             if self.catalog_version != CatalogVersion::Unknown {
