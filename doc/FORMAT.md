@@ -1,19 +1,18 @@
-Capture One 12 format
-=====================
+Capture One catalog format
+==========================
 
-Based on macOS, version 11.
+Based on macOS, version 11 and 12.
 
 The Capture One Catalog is a bundle, ie a directory with other files.
 
 Catalog
 +-> Capture One Catalog.cocatalogdb
        The main file, a sqlite3 database file
+       First observation, both version 11 and 12 share the same schema.
 +-> Originals/
        Where the origingal files "In catalog" are stored.
+       See ZPATHLOCATION with ZISRELATIVE set to 1.
 +-> Cache/
-
-
-
 
 
 cocatalogdb
@@ -74,6 +73,14 @@ The path locations for "CatalogFolderCollection" entities
 - ZWINATTRIBUTE
 
 ZKEYWORD
+
+- Z_ENT always a match on "Keyword"
+- Z_PK primary key
+- ZNAME keyword name.
+- ZPARENT id of parent keyword.
+- ZLEFT / ZRIGHT ???
+- ZISEXPORTABLE
+- ZDESCRIPTION
 
 ZIMAGE
 
