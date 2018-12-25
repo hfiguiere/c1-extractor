@@ -14,7 +14,7 @@ use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 use docopt::Docopt;
-use c1::{CoId, Catalog, CatalogVersion, Collection, Image, Folders, Keyword, KeywordTree};
+use c1::{CoId, Catalog, CatalogVersion, Collection, Image, Folder, Keyword, KeywordTree};
 
 const USAGE: &str = "
 Usage:
@@ -93,14 +93,14 @@ fn process_dump(args: &Args) {
                 dump_keywords(0, &keywords, &keywordtree);
             }
         }
-/*
+
         {
             let folders = catalog.load_folders();
             if args.flag_all || args.flag_folders {
                 dump_folders(&folders);
             }
         }
-
+/*
         {
             let libfiles = catalog.load_library_files();
             if args.flag_all || args.flag_libfiles {
@@ -164,12 +164,12 @@ fn dump_keywords(root: i64, keywords: &BTreeMap<i64, Keyword>, tree: &KeywordTre
     );
 }
 
-fn dump_folders(folders: &Folders) {
+fn dump_folders(folders: &[Folder]) {
+    /*
     println!("Root Folders");
     println!("+---------+--------------------------------------+------------------+----------------------------");
     println!("| id      | uuid                                 | name             | absolute path");
     println!("+---------+--------------------------------------+------------------+----------------------------");
-    /*
     for root in &folders.roots {
         println!(
             "| {:>7} | {} | {:<16} | {:<26}",
@@ -180,24 +180,23 @@ fn dump_folders(folders: &Folders) {
         );
     }
     println!("+---------+--------------------------------------+------------------+----------------------------");
+     */
     println!("Folders");
-    println!("+---------+--------------------------------------+--------+-----------------------------+----------");
+    println!("+---------+---------+-------+----------------------------+----------");
     println!(
-        "| id      | uuid                                 | root   | path                        |"
+        "| id      | root    | relat | path                        |"
     );
-    println!("+---------+--------------------------------------+--------+-----------------------------+----------");
-    for folder in &folders.folders {
+    println!("+---------+---------+-------+----------------------------+----------");
+    for folder in folders {
         println!(
-            "| {:>7} | {} | {:>7} | {:<26} | {:?}",
+            "| {:>7} | {:<7} | {:<5} | {:<26}",
             folder.id(),
-            folder.uuid(),
             folder.root_folder,
-            folder.path_from_root,
-            folder.content
+            folder.is_relative,
+            folder.path_from_root
         );
     }
-    println!("+---------+--------------------------------------+--------+-----------------------------+----------");
-     */
+    println!("+---------+---------+-------+----------------------------+----------");
 }
 
 /*
