@@ -50,15 +50,22 @@ ZCOLLECTION
 The collections. Can be any type. Use the entity type to identify it.
 
 - Z_ENT: the entity type.
+  - ProjectCollection: the root
+    Column ZTRASHCOLLECTION contain id of trash collection
+  - VirtualFolderCollection: folder in the tree
+  - CatalogAllImagesCollection: all images
+  - TrashCollection: the trash collection
+  - CatalogInternalImagesCollection: the images stored in the catalog
+  - AlbumCollection: user collections (albums)
+  - CatalogFolderCollection: filesystem folders. ZNAME is null.
 - ZNAME: (string) name of the collection (or null). Restricted to certain types.
 - ZFOLDERLOCATION: key to join with table ZPATHLOCATION
   For "CatalogFolderCollection" type.
-- ZCOLLECTIONINDX: the index (order) of the collection in the UI
+- ZCOLLECTIONINDX: the index (order) of the collection in the UI.
 - ZPARENT the parent collection (or null). Join on Z_PK.
 - ZDATECREATED / ZDATEMODIFIED creation and modification date.
 - ZSORTORDER the key to sort on (string)
 - ZPRIMARYVARIANT ???? (a ZIMAGE?)
-
 
 ZPATHLOCATION
 

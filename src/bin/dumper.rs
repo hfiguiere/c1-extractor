@@ -113,13 +113,13 @@ fn process_dump(args: &Args) {
                 dump_images(&images);
             }
         }
+*/
         {
             let collections = catalog.load_collections();
             if args.flag_all || args.flag_collections {
                 dump_collections(&collections);
             }
         }
-*/
     }
 }
 
@@ -246,17 +246,14 @@ fn dump_collections(collections: &[Collection]) {
     println!("+---------+--------------------------------------+---------+-------+----------------------");
     println!("| id      | name                                 | parent  | syst  | content");
     println!("+---------+--------------------------------------+---------+-------+----------------------");
-    /*
     for collection in collections {
         println!(
-            "| {:>7} | {:<36} | {:>7} | {:<5} | {:?}",
-            collection.id(),
-            collection.name,
+            "| {:>7} | {:<36?} | {:>7}",
+            collection.id,
+            collection.collection_type,
             collection.parent,
-            collection.system_only,
-            collection.content
         )
-    }*/
+    }
     println!("+---------+--------------------------------------+---------+-------+----------------------");
 }
 
