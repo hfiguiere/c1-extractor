@@ -29,7 +29,7 @@ pub struct Catalog {
     path: PathBuf,
     pub version: i32,
     pub catalog_version: CatalogVersion,
-    pub root_keyword_id: i64,
+    pub root_collection_id: i64,
 
     /// The entities
     entities: HashMap<i32, String>,
@@ -77,6 +77,12 @@ impl Catalog {
                         let ent: i32 = row.get(0);
                         let name: String = row.get(1);
                         self.entities.insert(ent, name);
+                    }
+                }
+                if let Ok(mut stmt) = conn.prepare("SELECT ZROOTCOLLECTION FROM ZDOCUMENTCONTENT") {
+                    let mut rows = stmt.query(&[]).unwrap();
+                    if let Some(Ok(row)) = rows.next() {
+                        self.root_collection_id = row.get(0);
                     }
                 }
             }

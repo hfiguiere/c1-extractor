@@ -74,7 +74,7 @@ fn process_dump(args: &Args) {
             "\tVersion: {} ({:?})",
             catalog.version, catalog.catalog_version
         );
-        println!("\tRoot keyword id: {}", catalog.root_keyword_id);
+        println!("\tRoot collection id: {}", catalog.root_collection_id);
 
         match catalog.catalog_version {
             CatalogVersion::Co12 => {}

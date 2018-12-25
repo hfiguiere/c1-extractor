@@ -23,6 +23,10 @@ Tables:
 
 ZDOCUMENTCONTENT
 
+- Z_ENT
+- Z_PK
+- ZROOTCOLLECTION: (integer) id of the root collection
+
 ZVERSIONINFO
 
 Version information
