@@ -48,11 +48,11 @@ impl KeywordTree {
     #[cfg(test)]
     pub fn test() {
         let mut keywords: BTreeMap<i64, Keyword> = BTreeMap::new();
-        keywords.insert(1, Keyword::new(1, 0, "", ""));
-        keywords.insert(2, Keyword::new(2, 1, "", ""));
-        keywords.insert(3, Keyword::new(3, 2, "", ""));
-        keywords.insert(4, Keyword::new(4, 0, "", ""));
-        keywords.insert(5, Keyword::new(5, 2, "", ""));
+        keywords.insert(1, Keyword::new(1, "", 0));
+        keywords.insert(2, Keyword::new(2, "", 1));
+        keywords.insert(3, Keyword::new(3, "", 2));
+        keywords.insert(4, Keyword::new(4, "", 0));
+        keywords.insert(5, Keyword::new(5, "", 2));
 
         let mut tree = KeywordTree::new();
         tree.add_children(&keywords);

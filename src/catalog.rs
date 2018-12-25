@@ -121,11 +121,10 @@ impl Catalog {
                     if let Ok(mut stmt) = conn.prepare("SELECT Z_PK, ZNAME, ZPARENT FROM ZKEYWORD WHERE Z_ENT=?1") {
                         let mut rows = stmt.query(&[entity]).unwrap();
                         while let Some(Ok(row)) = rows.next() {
-                            let keyword = Keyword {
-                                id: row.get(0),
-                                name: row.get(1),
-                                parent: row.get_checked(2).unwrap_or(0)
-                            };
+                            let name: String = row.get(1);
+                            let keyword = Keyword::new(
+                                row.get(0), &name,
+                                row.get_checked(2).unwrap_or(0));
                             self.keywords.insert(keyword.id(), keyword);
                         }
                     }
