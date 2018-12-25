@@ -39,10 +39,14 @@ ZENTITIES
 Association between table row and typed data.
 Join on Z_ENT columns.
 
+- Z_ENT: (integer) entity id.
+- ZNAME: (string) the entity name.
+
 ZCOLLECTION
 
 The collections. Can be any type. Use the entity type to identify it.
 
+- Z_ENT: the entity type.
 - ZNAME: (string) name of the collection (or null). Restricted to certain types.
 - ZFOLDERLOCATION: key to join with table ZPATHLOCATION
   For "CatalogFolderCollection" type.

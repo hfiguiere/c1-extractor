@@ -4,13 +4,14 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
 use rusqlite::Connection;
 
 const DB_FILENAME: &str = "Capture One Catalog.cocatalogdb";
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum CatalogVersion {
     Unknown,
     Co12
@@ -30,6 +31,8 @@ pub struct Catalog {
     pub catalog_version: CatalogVersion,
     pub root_keyword_id: i64,
 
+    /// The entities
+    entities: HashMap<i32, String>,
     /// The sqlite connection to the catalog
     dbconn: Option<Connection>,
 }
@@ -64,6 +67,16 @@ impl Catalog {
                     self.catalog_version = match self.version {
                         1200 => CatalogVersion::Co12,
                         _ => CatalogVersion::Unknown,
+                    }
+                }
+            }
+            if self.catalog_version != CatalogVersion::Unknown {
+                if let Ok(mut stmt) = conn.prepare("SELECT Z_ENT, ZNAME FROM ZENTITIES") {
+                    let mut rows = stmt.query(&[]).unwrap();
+                    while let Some(Ok(row)) = rows.next() {
+                        let ent: i32 = row.get(0);
+                        let name: String = row.get(1);
+                        self.entities.insert(ent, name);
                     }
                 }
             }
