@@ -30,6 +30,7 @@ impl Default for CatalogVersion {
 pub struct Catalog {
     /// Catalog path
     path: PathBuf,
+    db_only: bool,
     pub version: i32,
     pub catalog_version: CatalogVersion,
     pub root_collection_id: CoId,
@@ -53,15 +54,13 @@ impl Catalog {
 
     pub fn open(&mut self) -> bool {
         let mut db_path = self.path.clone();
-        db_path.push(DB_FILENAME);
-        let conn_attempt = Connection::open(&db_path);
-        if let Ok(conn) = conn_attempt {
-            self.dbconn = Some(conn);
-
-            return true;
+        self.db_only = !self.path.is_dir();
+        if !self.db_only  {
+            db_path.push(DB_FILENAME);
         }
-
-        false
+        let conn_attempt = Connection::open(&db_path);
+        self.dbconn = conn_attempt.ok();
+        self.dbconn.is_some()
     }
 
     pub fn load_version(&mut self) {
