@@ -1,11 +1,11 @@
 /*
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at http://mozilla.org/MPL/2.0/.
+*/
 
-extern crate docopt;
 extern crate c1;
+extern crate docopt;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
@@ -13,8 +13,8 @@ extern crate serde_derive;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
+use c1::{Catalog, CatalogVersion, CoId, Collection, Folder, Image, Keyword, KeywordTree};
 use docopt::Docopt;
-use c1::{CoId, Catalog, CatalogVersion, Collection, Image, Folder, Keyword, KeywordTree};
 
 const USAGE: &str = "
 Usage:
@@ -77,8 +77,7 @@ fn process_dump(args: &Args) {
         println!("\tRoot collection id: {}", catalog.root_collection_id);
 
         match catalog.catalog_version {
-            CatalogVersion::Co12 |
-            CatalogVersion::Co11 => {}
+            CatalogVersion::Co12 | CatalogVersion::Co11 => {}
             _ => {
                 println!("Unsupported catalog version");
                 return;
@@ -100,20 +99,14 @@ fn process_dump(args: &Args) {
                 dump_folders(&folders);
             }
         }
-/*
-        {
-            let libfiles = catalog.load_library_files();
-            if args.flag_all || args.flag_libfiles {
-                dump_libfiles(&libfiles);
-            }
-        }
-*/
+
         {
             let images = catalog.load_images();
             if args.flag_all || args.flag_images {
                 dump_images(&images);
             }
         }
+
         {
             let collections = catalog.load_collections();
             if args.flag_all || args.flag_collections {
@@ -148,28 +141,20 @@ fn print_keyword(level: i32, id: i64, keywords: &BTreeMap<CoId, Keyword>, tree: 
 
 fn dump_keywords(root: i64, keywords: &BTreeMap<i64, Keyword>, tree: &KeywordTree) {
     println!("Keywords");
-    println!(
-        "+---------+---------+----------------------------"
-    );
+    println!("+---------+---------+----------------------------");
     println!("| id      | parent  | name");
-    println!(
-        "+---------+---------+----------------------------"
-    );
+    println!("+---------+---------+----------------------------");
     let children = tree.children_for(root);
     for child in children {
         print_keyword(0, child, keywords, tree);
     }
-    println!(
-        "+---------+---------+----------------------------"
-    );
+    println!("+---------+---------+----------------------------");
 }
 
 fn dump_folders(folders: &[Folder]) {
     println!("Folders");
     println!("+---------+---------+-------+----------------------------+----------");
-    println!(
-        "| id      | root    | relat | path                        |"
-    );
+    println!("| id      | root    | relat | path                        |");
     println!("+---------+---------+-------+----------------------------+----------");
     for folder in folders {
         println!(
@@ -191,12 +176,7 @@ fn dump_images(images: &[Image]) {
     for image in images {
         println!(
             "| {:>7} | {} | {:>8} | {:<6} | {:<2} | {} |",
-            image.id,
-            image.uuid,
-            image.display_name,
-            image.format,
-            image.class,
-            image.file_name,
+            image.id, image.uuid, image.display_name, image.format, image.class, image.file_name,
         );
     }
     println!("+---------+--------------------------------------+---------+---------+----+--------------+");
@@ -210,9 +190,7 @@ fn dump_collections(collections: &[Collection]) {
     for collection in collections {
         println!(
             "| {:>7} | {:<36} | {:>7}",
-            collection.id,
-            collection.collection_type,
-            collection.parent,
+            collection.id, collection.collection_type, collection.parent,
         )
     }
     println!("+---------+--------------------------------------+---------+-------+----------------------");

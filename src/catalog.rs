@@ -1,16 +1,16 @@
 /*
-  This Source Code Form is subject to the terms of the Mozilla Public
-  License, v. 2.0. If a copy of the MPL was not distributed with this
-  file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at http://mozilla.org/MPL/2.0/.
+*/
 
-use std::collections::{HashMap, BTreeMap};
+use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};
 
 use rusqlite::Connection;
 
 use super::CoId;
-use super::{Image, Keyword, KeywordTree, Folders, Folder, Collection};
+use super::{Collection, Folder, Folders, Image, Keyword, KeywordTree};
 
 const DB_FILENAME: &str = "Capture One Catalog.cocatalogdb";
 
@@ -18,7 +18,7 @@ const DB_FILENAME: &str = "Capture One Catalog.cocatalogdb";
 pub enum CatalogVersion {
     Unknown,
     Co11,
-    Co12
+    Co12,
 }
 
 impl Default for CatalogVersion {
@@ -62,7 +62,6 @@ pub struct Catalog {
 }
 
 impl Catalog {
-
     pub fn new(path: &Path) -> Self {
         let mut catalog = Catalog::default();
         catalog.path = PathBuf::from(path);
@@ -72,7 +71,7 @@ impl Catalog {
     pub fn open(&mut self) -> bool {
         let mut db_path = self.path.clone();
         self.db_only = !self.path.is_dir();
-        if !self.db_only  {
+        if !self.db_only {
             db_path.push(DB_FILENAME);
         }
         let conn_attempt = Connection::open(&db_path);
@@ -82,7 +81,9 @@ impl Catalog {
 
     pub fn load_version(&mut self) {
         if let Some(conn) = self.dbconn.as_ref() {
-            if let Ok(mut stmt) = conn.prepare("SELECT ZVERSION FROM ZVERSIONINFO ORDER BY Z_PK DESC") {
+            if let Ok(mut stmt) =
+                conn.prepare("SELECT ZVERSION FROM ZVERSIONINFO ORDER BY Z_PK DESC")
+            {
                 let mut rows = stmt.query(&[]).unwrap();
                 if let Some(Ok(row)) = rows.next() {
                     self.version = row.get(0);
@@ -124,13 +125,14 @@ impl Catalog {
         if self.keywords.is_empty() {
             if let Some(ref conn) = self.dbconn {
                 if let Some(entity) = self.entities_name_to_id.get("Keyword") {
-                    if let Ok(mut stmt) = conn.prepare("SELECT Z_PK, ZNAME, ZPARENT FROM ZKEYWORD WHERE Z_ENT=?1") {
+                    if let Ok(mut stmt) =
+                        conn.prepare("SELECT Z_PK, ZNAME, ZPARENT FROM ZKEYWORD WHERE Z_ENT=?1")
+                    {
                         let mut rows = stmt.query(&[entity]).unwrap();
                         while let Some(Ok(row)) = rows.next() {
                             let name: String = row.get(1);
-                            let keyword = Keyword::new(
-                                row.get(0), &name,
-                                row.get_checked(2).unwrap_or(0));
+                            let keyword =
+                                Keyword::new(row.get(0), &name, row.get_checked(2).unwrap_or(0));
                             self.keywords.insert(keyword.id(), keyword);
                         }
                     }
@@ -144,7 +146,6 @@ impl Catalog {
         if self.folders.is_empty() {
             if let Some(ref conn) = self.dbconn {
                 if let Some(entity) = self.entities_name_to_id.get("PathLocation") {
-
                     self.folders = Folder::load_objects(&conn, *entity);
                 }
             }
