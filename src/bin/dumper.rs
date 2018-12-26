@@ -107,13 +107,13 @@ fn process_dump(args: &Args) {
                 dump_libfiles(&libfiles);
             }
         }
+*/
         {
             let images = catalog.load_images();
             if args.flag_all || args.flag_images {
                 dump_images(&images);
             }
         }
-*/
         {
             let collections = catalog.load_collections();
             if args.flag_all || args.flag_collections {
@@ -183,46 +183,23 @@ fn dump_folders(folders: &[Folder]) {
     println!("+---------+---------+-------+----------------------------+----------");
 }
 
-/*
-fn dump_libfiles(libfiles: &[LibraryFile]) {
-    println!("Libfiles");
-    println!("+---------+--------------------------------------+---------+--------+---------------------+----------+");
-    println!("| id      | uuid                                 | folder  | extens | basename            | sidecars |");
-    println!("+---------+--------------------------------------+---------+--------+---------------------+----------+");
-    for libfile in libfiles {
-        println!(
-            "| {:>7} | {} | {:>7} | {:<6} | {:<19} | {:<8} |",
-            libfile.id(),
-            libfile.uuid(),
-            libfile.folder,
-            libfile.extension,
-            libfile.basename,
-            libfile.sidecar_extensions
-        );
-    }
-    println!("+---------+--------------------------------------+---------+--------+---------------------+----------+");
-}
- */
-
 fn dump_images(images: &[Image]) {
     println!("Images");
-    println!("+---------+--------------------------------------+---------+--------+-------+----+");
-    println!("| id      | uuid                                 | root    | format | or    | P  |");
-    println!("+---------+--------------------------------------+---------+--------+-------+----+");
-    /*
+    println!("+---------+--------------------------------------+----------+--------+-------+----------");
+    println!("| id      | uuid                                 | DisplayN | format | class | file name");
+    println!("+---------+--------------------------------------+----------+--------+-------+----------");
     for image in images {
         println!(
-            "| {:>7} | {} | {:>7} | {:<6} | {:<2}({}) | {:>2} |",
-            image.id(),
-            image.uuid(),
-            image.root_file,
-            image.file_format,
-            image.orientation.as_ref().unwrap_or(&String::new()),
-            image.exif_orientation(),
-            image.pick
+            "| {:>7} | {} | {:>8} | {:6?} | {:<2} | {} |",
+            image.id,
+            image.uuid,
+            image.display_name,
+            image.format,
+            image.class,
+            image.file_name,
         );
-    }*/
-    println!("+---------+--------------------------------------+---------+--------+-------+----+");
+    }
+    println!("+---------+--------------------------------------+----------+---------+-------+----------");
 }
 
 fn dump_collections(collections: &[Collection]) {

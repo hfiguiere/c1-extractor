@@ -9,16 +9,15 @@ extern crate rusqlite;
 mod catalog;
 mod collections;
 mod folders;
+mod images;
 mod keywords;
 mod keywordtree;
 
 pub use catalog::{Catalog, CatalogVersion};
 pub use collections::{Collection, CollectionType};
 pub use folders::{Folder, Folders};
+pub use images::Image;
 pub use keywords::{Keyword};
 pub use keywordtree::{KeywordTree};
-
-
-pub struct Image {}
 
 pub type CoId = i64;

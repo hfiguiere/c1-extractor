@@ -91,7 +91,36 @@ ZKEYWORD
 
 ZIMAGE
 
-The images.
+The images, original files. Each seems to have a variant.
 
-- Z_ENT: matches "Image"
+- Z_ENT: matches "Image".
+- Z_PK: the id.
+- ZIMAGEUUID: image uuid.
+- ZSIDECARPATH: basename path from the Cache subdir for the sidecar
+  (cop and cof files).
+- ZDISPLAYNAME (string) the name for display.
+- ZISINSIDECATALOG (integer) whether the image is in the catalog or not.
+- ZIMAGELOCATION (integer) join on ZPATHLOCATION.Z_PK.
+- ZIMAGEFILENAME (stirng) the file name in its directory.
+- ZIMAGECLASSIFICATION (integer) type of image
+  - 19 for JPEG
+  - 17 for RAW (RAF in this case, unsure about other varieties)
+  - 6 for MOV
+- ZISTRASHED (integer) true if in trash.
+- ZEXP_FORMAT (string) format for export ???
+  -JPEG, RAW, MOVIE
+- ZFILE_SIZE: file size in bytes.
+- ZWIDTH and ZHEIGHT image dimensions.
+- ZGPSALTITUDE, ZGPSLATITUDE, ZGPSLONGITUDE: GPS position.
+(lot of other metadata related columns)
 
+ZVARIANT
+
+Variant are an edited version of an image.
+
+- Z_ENT: matches "Variant".
+
+
+ZPROCESSHISTORY
+
+What has been exported.
