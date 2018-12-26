@@ -185,12 +185,12 @@ fn dump_folders(folders: &[Folder]) {
 
 fn dump_images(images: &[Image]) {
     println!("Images");
-    println!("+---------+--------------------------------------+----------+--------+-------+----------");
-    println!("| id      | uuid                                 | DisplayN | format | class | file name");
-    println!("+---------+--------------------------------------+----------+--------+-------+----------");
+    println!("+---------+--------------------------------------+----------+--------+----+--------------+");
+    println!("| id      | uuid                                 | DisplayN | format | cl | file name    |");
+    println!("+---------+--------------------------------------+----------+--------+----+--------------+");
     for image in images {
         println!(
-            "| {:>7} | {} | {:>8} | {:6?} | {:<2} | {} |",
+            "| {:>7} | {} | {:>8} | {:<6} | {:<2} | {} |",
             image.id,
             image.uuid,
             image.display_name,
@@ -199,7 +199,7 @@ fn dump_images(images: &[Image]) {
             image.file_name,
         );
     }
-    println!("+---------+--------------------------------------+----------+---------+-------+----------");
+    println!("+---------+--------------------------------------+---------+---------+----+--------------+");
 }
 
 fn dump_collections(collections: &[Collection]) {
@@ -209,7 +209,7 @@ fn dump_collections(collections: &[Collection]) {
     println!("+---------+--------------------------------------+---------+-------+----------------------");
     for collection in collections {
         println!(
-            "| {:>7} | {:<36?} | {:>7}",
+            "| {:>7} | {:<36} | {:>7}",
             collection.id,
             collection.collection_type,
             collection.parent,

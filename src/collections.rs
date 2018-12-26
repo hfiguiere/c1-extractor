@@ -4,6 +4,7 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+use std::fmt;
 use std::collections::HashMap;
 use rusqlite;
 
@@ -25,9 +26,30 @@ pub enum CollectionType {
 }
 
 impl Default for CollectionType {
-
     fn default() -> Self {
         CollectionType::Invalid
+    }
+}
+
+impl fmt::Display for CollectionType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            CollectionType::Album(ref s) =>
+                f.pad(format!("Alb: \"{}\"", s).as_str()),
+            CollectionType::VirtualFolder(ref s) =>
+                f.pad(format!("VF: \"{}\"", s).as_str()),
+            CollectionType::Project =>
+                f.pad("root"),
+            CollectionType::CatalogAll =>
+                f.pad("All Images"),
+            CollectionType::Trash =>
+                f.pad("Trash"),
+            CollectionType::CatalogInternalImages =>
+                f.pad("All catalog images"),
+            CollectionType::Folder(id) =>
+                f.pad(format!("Path folder: {}", id).as_str()),
+            _ => f.pad("Invalid"),
+        }
     }
 }
 

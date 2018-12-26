@@ -4,6 +4,7 @@
   file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+use std::fmt;
 use rusqlite;
 use super::CoId;
 
@@ -22,6 +23,17 @@ impl From<&str> for ImageFormat {
             "RAW" => ImageFormat::Raw,
             "MOVIE" => ImageFormat::Movie,
             _ => ImageFormat::Unknown
+        }
+    }
+}
+
+impl fmt::Display for ImageFormat {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            ImageFormat::Jpeg => f.pad("JPEG"),
+            ImageFormat::Raw => f.pad("RAW"),
+            ImageFormat::Movie => f.pad("MOVIE"),
+            _ => f.pad("UNKNOWN")
         }
     }
 }
