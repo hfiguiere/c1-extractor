@@ -114,13 +114,64 @@ The images, original files. Each seems to have a variant.
 - ZGPSALTITUDE, ZGPSLATITUDE, ZGPSLONGITUDE: GPS position.
 (lot of other metadata related columns)
 
-ZVARIANT
-
-Variant are an edited version of an image.
-
-- Z_ENT: matches "Variant".
-
-
 ZPROCESSHISTORY
 
 What has been exported.
+
+ZSTACK
+
+Stack are a set of images grouped together. They are the things in collection.
+Join Z_PK with ZSTACKIMAGELINK.ZSTACK
+Join ZCOLLECTION.Z_PK with ZSTACK.ZCOLLECTION
+
+- Z_ENT match "Stack"
+- Z_PK the id of the stack
+- Z_INDEX ?
+- ZOUTLINE (string)
+- ZSORTORDER (string) sorting key?
+- ZCOLLECTION (integer) the ZCOLLECTION.Z_PK associated.
+- ZPICKEDIMAGE (integer) the ZIMAGE.Z_PK picked to represent the stack. On
+  one image stack, it is the same as the content.
+
+
+ZSTACKIMAGELINK
+
+Link a ZIMAGE to a ZSTACK
+
+- Z_ENT always null
+- Z_PK id (integer)
+- ZINDEX (integer)
+- ZIMAGE (integer) the ZIMAGE.Z_PK part of the stack.
+- ZSTACK (integer) the ZSTACK.Z_PK of the stack.
+
+ZVARIANT
+
+Variant are edited versions of a ZIMAGE. There is at least one per image.
+
+- Z_ENT always "Variant"
+- Z_PK id (integer)
+- ZDEFAULTLAYER (integer) Z_PK of a ZVARIANTLAYER
+- ZADJUSTMENTLAYER (interger) Z_PK of a ZVARIANTLAYER
+- ZCOMBINEDSETTINGS (integer) Z_PK of ZVARIANTLAYER
+- ZVARIANTUUID (string) UUID of the variant.
+- ZIMAGE (integer) the Z_PK of the ZIMAGE this is a variant of.
+- ZPROCESSINGENGINE (integer) version of the processing engine. Known values
+  are 1100 for Capture One 11 and 1200 for Capture One 12.
+- ZPRODUCTID (string) indicate the type.
+  - "FujiXT3" RAF from XT3
+  - "FileSystemJpeg" JPEG
+- ...
+
+ZVARIANTLAYER
+
+The adjustments for a variant. There is a default
+ZVARIANT.ZDEFAULTLAYER, an adjustement one ZVARIANT.ZADJUSTMENTLAYER
+and one ZVARIANT.ZCOMBINEDSETTINGS.
+
+- ...
+
+ZVARIANTMETADATA
+
+The metadatas for a variant layer. These are the use modifiable.
+
+- ...
