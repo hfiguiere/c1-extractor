@@ -10,7 +10,7 @@ use std::path::{Path, PathBuf};
 use rusqlite::Connection;
 
 use super::CoId;
-use super::{Collection, Folder, Folders, Image, Keyword, KeywordTree};
+use super::{Collection, Folder, Folders, Image, Keyword, KeywordTree, Stack};
 
 const DB_FILENAME: &str = "Capture One Catalog.cocatalogdb";
 
@@ -54,6 +54,8 @@ pub struct Catalog {
     collections: Vec<Collection>,
     /// Images
     images: Vec<Image>,
+    /// Stacks
+    stacks: Vec<Stack>,
     /// The entities
     entities_id_to_name: HashMap<CoId, String>,
     entities_name_to_id: HashMap<String, CoId>,
@@ -171,5 +173,16 @@ impl Catalog {
             }
         }
         &self.images
+    }
+
+    pub fn load_stacks(&mut self) -> &Vec<Stack> {
+        if self.stacks.is_empty() {
+            if let Some(ref conn) = self.dbconn {
+                if let Some(entity) = self.entities_name_to_id.get("Stack") {
+                    self.stacks = Stack::load_objects(conn, *entity);
+                }
+            }
+        }
+        &self.stacks
     }
 }

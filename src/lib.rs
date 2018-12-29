@@ -12,6 +12,7 @@ mod folders;
 mod images;
 mod keywords;
 mod keywordtree;
+mod stack;
 
 pub use catalog::{Catalog, CatalogVersion};
 pub use collections::{Collection, CollectionType};
@@ -19,5 +20,6 @@ pub use folders::{Folder, Folders};
 pub use images::Image;
 pub use keywords::Keyword;
 pub use keywordtree::KeywordTree;
+pub use stack::Stack;
 
 pub type CoId = i64;

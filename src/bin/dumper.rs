@@ -13,18 +13,19 @@ extern crate serde_derive;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
-use c1::{Catalog, CatalogVersion, CoId, Collection, Folder, Image, Keyword, KeywordTree};
+use c1::{Catalog, CatalogVersion, CoId, Collection, Folder, Image, Keyword, KeywordTree, Stack};
 use docopt::Docopt;
 
 const USAGE: &str = "
 Usage:
-  dumper <command> ([--all] | [--collections] [--libfiles] [--images] [--folders] [--keywords]) <path>
+  dumper <command> ([--all] | [--collections] [--libfiles] [--images] [--folders] [--keywords] [--stacks]) <path>
 
 Options:
     --all          Select all objects
     --collections  Select only collections
     --libfiles     Select only library files
     --images       Select only images
+    --stacks       Select only stacks
     --folders      Select only folders
     --keywords     Select only keywords
 
@@ -41,6 +42,7 @@ struct Args {
     flag_collections: bool,
     flag_libfiles: bool,
     flag_images: bool,
+    flag_stacks: bool,
     flag_folders: bool,
     flag_keywords: bool,
 }
@@ -104,6 +106,13 @@ fn process_dump(args: &Args) {
             let images = catalog.load_images();
             if args.flag_all || args.flag_images {
                 dump_images(&images);
+            }
+        }
+
+        {
+            let stacks = catalog.load_stacks();
+            if args.flag_all || args.flag_stacks {
+                dump_stacks(&stacks);
             }
         }
 
@@ -180,6 +189,20 @@ fn dump_images(images: &[Image]) {
         );
     }
     println!("+---------+--------------------------------------+---------+---------+----+--------------+");
+}
+
+fn dump_stacks(stacks: &[Stack]) {
+    println!("Stacks");
+    println!("+---------+------------+--------+");
+    println!("| id      | collection | pick   |");
+    println!("+---------+------------+--------+");
+    for stack in stacks {
+        println!(
+            "| {:>7} | {:>7} | {:>7} |",
+            stack.id, stack.collection, stack.pick,
+        );
+    }
+    println!("+---------+------------+--------+");
 }
 
 fn dump_collections(collections: &[Collection]) {
