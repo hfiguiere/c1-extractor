@@ -159,6 +159,10 @@ impl Catalog {
         if self.collections.is_empty() {
             if let Some(ref conn) = self.dbconn {
                 self.collections = Collection::load_objects(conn, &self.entities_id_to_name);
+                self.collections.iter_mut().for_each(|collection: &mut Collection| {
+                    collection.get_content(conn);
+                });
+
             }
         }
         &self.collections
@@ -180,6 +184,9 @@ impl Catalog {
             if let Some(ref conn) = self.dbconn {
                 if let Some(entity) = self.entities_name_to_id.get("Stack") {
                     self.stacks = Stack::load_objects(conn, *entity);
+                    self.stacks.iter_mut().for_each(|stack: &mut Stack| {
+                        stack.get_content(conn);
+                    });
                 }
             }
         }

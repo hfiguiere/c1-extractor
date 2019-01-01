@@ -50,6 +50,8 @@ pub struct Collection {
     pub id: CoId,
     pub collection_type: CollectionType,
     pub parent: CoId,
+    /// Content: id of stack. None mean it hasn't been loaded.
+    pub content: Option<Vec<CoId>>,
 }
 
 impl Collection {
@@ -85,6 +87,7 @@ impl Collection {
                         id,
                         collection_type,
                         parent,
+                        content: None,
                     });
                 }
             }
@@ -92,4 +95,16 @@ impl Collection {
 
         collections
     }
+
+    pub fn get_content(&mut self, conn: &rusqlite::Connection) {
+        let mut ids: Vec<CoId> = vec![];
+        if let Ok(mut stmt) = conn.prepare("SELECT Z_PK FROM ZSTACK WHERE ZCOLLECTION=?1") {
+            let mut rows = stmt.query(&[&self.id]).unwrap();
+            while let Some(Ok(row)) = rows.next() {
+                ids.push(row.get(0));
+            }
+            self.content = Some(ids);
+        }
+    }
+
 }

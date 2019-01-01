@@ -12,6 +12,8 @@ pub struct Stack {
     pub id: CoId,
     pub collection: CoId,
     pub pick: CoId,
+    /// Content: id of images. None mean it hasn't been loaded.
+    pub content: Option<Vec<CoId>>,
 }
 
 
@@ -26,10 +28,22 @@ impl Stack {
                     id: row.get(0),
                     collection: row.get(1),
                     pick: row.get(2),
+                    content: None,
                 });
             }
         }
 
         stacks
+    }
+
+    pub fn get_content(&mut self, conn: &rusqlite::Connection) {
+        let mut ids: Vec<CoId> = vec![];
+        if let Ok(mut stmt) = conn.prepare("SELECT ZIMAGE FROM ZSTACKIMAGELINK WHERE ZSTACK=?1") {
+            let mut rows = stmt.query(&[&self.id]).unwrap();
+            while let Some(Ok(row)) = rows.next() {
+                ids.push(row.get(0));
+            }
+            self.content = Some(ids);
+        }
     }
 }

@@ -193,30 +193,32 @@ fn dump_images(images: &[Image]) {
 
 fn dump_stacks(stacks: &[Stack]) {
     println!("Stacks");
-    println!("+---------+------------+--------+");
+    println!("+---------+------------+--------+------");
     println!("| id      | collection | pick   |");
-    println!("+---------+------------+--------+");
+    println!("+---------+------------+--------+------");
     for stack in stacks {
+        let count = if let Some(ref content) = stack.content { content.len() } else { 0 };
         println!(
-            "| {:>7} | {:>7} | {:>7} |",
-            stack.id, stack.collection, stack.pick,
+            "| {:>7} | {:>7} | {:>7} | {}",
+            stack.id, stack.collection, stack.pick, count
         );
     }
-    println!("+---------+------------+--------+");
+    println!("+---------+------------+--------+------");
 }
 
 fn dump_collections(collections: &[Collection]) {
     println!("Collections");
-    println!("+---------+--------------------------------------+---------+-------+----------------------");
-    println!("| id      | name                                 | parent  | syst  | content");
-    println!("+---------+--------------------------------------+---------+-------+----------------------");
+    println!("+---------+------------------------------------------+---------+-------");
+    println!("| id      | name                                     | parent  | count");
+    println!("+---------+------------------------------------------+---------+-------");
     for collection in collections {
+        let count = if let Some(ref content) = collection.content { content.len() } else { 0 };
         println!(
-            "| {:>7} | {:<36} | {:>7}",
-            collection.id, collection.collection_type, collection.parent,
+            "| {:>7} | {:<40} | {:>7} | {}",
+            collection.id, collection.collection_type, collection.parent, count
         )
     }
-    println!("+---------+--------------------------------------+---------+-------+----------------------");
+    println!("+---------+------------------------------------------+---------+-------");
 }
 
 fn process_audit(_: &Args) {}
