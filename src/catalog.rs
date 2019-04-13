@@ -159,10 +159,11 @@ impl Catalog {
         if self.collections.is_empty() {
             if let Some(ref conn) = self.dbconn {
                 self.collections = Collection::load_objects(conn, &self.entities_id_to_name);
-                self.collections.iter_mut().for_each(|collection: &mut Collection| {
-                    collection.get_content(conn);
-                });
-
+                self.collections
+                    .iter_mut()
+                    .for_each(|collection: &mut Collection| {
+                        collection.get_content(conn);
+                    });
             }
         }
         &self.collections

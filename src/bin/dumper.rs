@@ -197,7 +197,11 @@ fn dump_stacks(stacks: &[Stack]) {
     println!("| id      | collection | pick   |");
     println!("+---------+------------+--------+------");
     for stack in stacks {
-        let count = if let Some(ref content) = stack.content { content.len() } else { 0 };
+        let count = if let Some(ref content) = stack.content {
+            content.len()
+        } else {
+            0
+        };
         println!(
             "| {:>7} | {:>7} | {:>7} | {}",
             stack.id, stack.collection, stack.pick, count
@@ -212,7 +216,11 @@ fn dump_collections(collections: &[Collection]) {
     println!("| id      | name                                     | parent  | count");
     println!("+---------+------------------------------------------+---------+-------");
     for collection in collections {
-        let count = if let Some(ref content) = collection.content { content.len() } else { 0 };
+        let count = if let Some(ref content) = collection.content {
+            content.len()
+        } else {
+            0
+        };
         println!(
             "| {:>7} | {:<40} | {:>7} | {}",
             collection.id, collection.collection_type, collection.parent, count

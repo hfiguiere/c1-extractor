@@ -4,8 +4,8 @@
  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-use rusqlite;
 use super::CoId;
+use rusqlite;
 
 #[derive(Default)]
 pub struct Stack {
@@ -16,12 +16,12 @@ pub struct Stack {
     pub content: Option<Vec<CoId>>,
 }
 
-
 impl Stack {
-
     pub fn load_objects(conn: &rusqlite::Connection, entity: CoId) -> Vec<Stack> {
         let mut stacks: Vec<Stack> = vec![];
-        if let Ok(mut stmt) = conn.prepare("SELECT Z_PK, ZCOLLECTION, ZPICKEDIMAGE FROM ZSTACK WHERE Z_ENT=?1") {
+        if let Ok(mut stmt) =
+            conn.prepare("SELECT Z_PK, ZCOLLECTION, ZPICKEDIMAGE FROM ZSTACK WHERE Z_ENT=?1")
+        {
             let mut rows = stmt.query(&[&entity]).unwrap();
             while let Some(Ok(row)) = rows.next() {
                 stacks.push(Stack {
