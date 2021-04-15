@@ -65,9 +65,10 @@ pub struct Catalog {
 
 impl Catalog {
     pub fn new(path: &Path) -> Self {
-        let mut catalog = Catalog::default();
-        catalog.path = PathBuf::from(path);
-        catalog
+        Catalog {
+            path: PathBuf::from(path),
+            ..Default::default()
+        }
     }
 
     pub fn open(&mut self) -> bool {
