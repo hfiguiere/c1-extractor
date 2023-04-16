@@ -174,4 +174,9 @@ ZVARIANTMETADATA
 
 The metadatas for a variant layer. These are the use modifiable.
 
+- Z_ENT matches "VariantMetadata"
+- Z_PK id (integer)
+- ZLAYER (integer) the corresponding ZLAYER.Z_PK.
+- ZCOLOR_TAG_INDEX (integer) the colour tag. null mean none. Start
+  index is 1. Order is Red, Orange, Yellow, Green, Blue, Pink, Purple.
 - ...
