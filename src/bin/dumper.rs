@@ -80,7 +80,12 @@ fn process_list(args: &ListArgs) {
         let folders = catalog.load_folders();
 
         let resolved_folders = BTreeMap::from_iter(folders.iter().map(|folder| {
-            (folder.id(), format!("{}{}", folder.root_folder, folder.path_from_root))
+            let resolved = if folder.is_relative {
+                format!("./{}", folder.path_from_root)
+            } else {
+                format!("{}{}", folder.root_folder, folder.path_from_root)
+            };
+            (folder.id(), resolved)
         }));
         if args.dirs {
             let mut dirs = resolved_folders.values().collect::<Vec<&String>>();
