@@ -5,70 +5,65 @@
 */
 
 extern crate c1;
-extern crate docopt;
-extern crate serde;
-#[macro_use]
-extern crate serde_derive;
 
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
+use clap::{Parser, Subcommand};
+
 use c1::{Catalog, CatalogVersion, CoId, Collection, Folder, Image, Keyword, KeywordTree, Stack};
-use docopt::Docopt;
 
-const USAGE: &str = "
-Usage:
-  dumper <command> ([--all] | [--collections] [--libfiles] [--images] [--folders] [--keywords] [--stacks]) <path>
-
-Options:
-    --all          Select all objects
-    --collections  Select only collections
-    --libfiles     Select only library files
-    --images       Select only images
-    --stacks       Select only stacks
-    --folders      Select only folders
-    --keywords     Select only keywords
-
-Commands are:
-    dump           Dump the objects
-    audit          Audit mode: output what we ignored
-";
-
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Parser)]
+#[command(version)]
 struct Args {
-    arg_command: Command,
-    arg_path: PathBuf,
-    flag_all: bool,
-    flag_collections: bool,
-    flag_libfiles: bool,
-    flag_images: bool,
-    flag_stacks: bool,
-    flag_folders: bool,
-    flag_keywords: bool,
+    #[command(subcommand)]
+    command: Command,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Subcommand)]
 enum Command {
-    Dump,
+    Dump(DumpArgs),
     Audit,
-    Unknown(String),
+}
+
+#[derive(Debug, Parser)]
+struct DumpArgs {
+    /// Path to the catalog.
+    path: PathBuf,
+    /// Dump all.
+    #[arg(long)]
+    all: bool,
+    /// Dump collections.
+    #[arg(long)]
+    collections: bool,
+    /// Dump libfiles.
+    #[arg(long)]
+    libfiles: bool,
+    /// Dump images.
+    #[arg(long)]
+    images: bool,
+    /// Dump stacks.
+    #[arg(long)]
+    stacks: bool,
+    /// Dump folders.
+    #[arg(long)]
+    folders: bool,
+    /// Dump keywords.
+    #[arg(long)]
+    keywords: bool,
 }
 
 fn main() {
-    let args: Args = Docopt::new(USAGE)
-        .and_then(|d| d.argv(std::env::args()).deserialize())
-        .unwrap_or_else(|e| e.exit());
-    {
-        match args.arg_command {
-            Command::Dump => process_dump(&args),
-            Command::Audit => process_audit(&args),
-            _ => (),
-        };
-    }
+    let args = Args::parse();
+
+    match args.command {
+        Command::Dump(args) => process_dump(&args),
+        Command::Audit => process_audit(&args),
+    };
 }
 
-fn process_dump(args: &Args) {
-    let mut catalog = Catalog::new(&args.arg_path);
+fn process_dump(args: &DumpArgs) {
+    let mut catalog = Catalog::new(&args.path);
     if catalog.open() {
         catalog.load_version();
         println!("Catalog:");
@@ -90,35 +85,35 @@ fn process_dump(args: &Args) {
             let keywordtree = catalog.load_keywords_tree();
             let keywords = catalog.load_keywords();
 
-            if args.flag_all || args.flag_keywords {
+            if args.all || args.keywords {
                 dump_keywords(0, &keywords, &keywordtree);
             }
         }
 
         {
             let folders = catalog.load_folders();
-            if args.flag_all || args.flag_folders {
+            if args.all || args.folders {
                 dump_folders(&folders);
             }
         }
 
         {
             let images = catalog.load_images();
-            if args.flag_all || args.flag_images {
+            if args.all || args.images {
                 dump_images(&images);
             }
         }
 
         {
             let stacks = catalog.load_stacks();
-            if args.flag_all || args.flag_stacks {
+            if args.all || args.stacks {
                 dump_stacks(&stacks);
             }
         }
 
         {
             let collections = catalog.load_collections();
-            if args.flag_all || args.flag_collections {
+            if args.all || args.collections {
                 dump_collections(&collections);
             }
         }
