@@ -7,6 +7,7 @@
 extern crate c1;
 
 use std::collections::BTreeMap;
+use std::iter::FromIterator;
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
@@ -23,6 +24,7 @@ struct Args {
 #[derive(Debug, Subcommand)]
 enum Command {
     Dump(DumpArgs),
+    List(ListArgs),
     Audit,
 }
 
@@ -36,9 +38,6 @@ struct DumpArgs {
     /// Dump collections.
     #[arg(long)]
     collections: bool,
-    /// Dump libfiles.
-    #[arg(long)]
-    libfiles: bool,
     /// Dump images.
     #[arg(long)]
     images: bool,
@@ -53,13 +52,60 @@ struct DumpArgs {
     keywords: bool,
 }
 
+#[derive(Debug, Parser)]
+struct ListArgs {
+    /// Path to the catalog.
+    path: PathBuf,
+    #[arg(short)]
+    dirs: bool,
+    #[arg(short)]
+    sort: bool,
+}
+
 fn main() {
     let args = Args::parse();
 
     match args.command {
+        Command::List(args) => process_list(&args),
         Command::Dump(args) => process_dump(&args),
         Command::Audit => process_audit(&args),
     };
+}
+
+fn process_list(args: &ListArgs) {
+    let mut catalog = Catalog::new(&args.path);
+    if catalog.open() {
+        // XXX this is stupid everything fails if this isn't called.
+        catalog.load_version();
+        let folders = catalog.load_folders();
+
+        let resolved_folders = BTreeMap::from_iter(folders.iter().map(|folder| {
+            (folder.id(), format!("{}{}", folder.root_folder, folder.path_from_root))
+        }));
+        if args.dirs {
+            let mut dirs = resolved_folders.values().collect::<Vec<&String>>();
+            if args.sort {
+                dirs.sort_unstable();
+            }
+            dirs.iter().for_each(|folder| println!("{}", folder));
+
+            return;
+        }
+
+        let images = catalog.load_images();
+        let mut image_files = images
+            .iter()
+            .filter_map(|image| {
+                resolved_folders
+                    .get(&image.folder)
+                    .map(|folder| format!("{}/{}", folder, image.file_name))
+            })
+            .collect::<Vec<String>>();
+        if args.sort {
+            image_files.sort_unstable();
+        }
+        image_files.iter().for_each(|file| println!("{file}"));
+    }
 }
 
 fn process_dump(args: &DumpArgs) {
@@ -189,7 +235,7 @@ fn dump_images(images: &[Image]) {
 fn dump_stacks(stacks: &[Stack]) {
     println!("Stacks");
     println!("+---------+------------+--------+------");
-    println!("| id      | collection | pick   |");
+    println!("| id      | collection | pick   | count");
     println!("+---------+------------+--------+------");
     for stack in stacks {
         let count = if let Some(ref content) = stack.content {
@@ -198,7 +244,7 @@ fn dump_stacks(stacks: &[Stack]) {
             0
         };
         println!(
-            "| {:>7} | {:>7} | {:>7} | {}",
+            "| {:>7} | {:>10} | {:>7} | {}",
             stack.id, stack.collection, stack.pick, count
         );
     }
