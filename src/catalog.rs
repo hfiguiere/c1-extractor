@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 
 use rusqlite::{params, Connection};
 
-use super::CoId;
+use super::{CoId, Error, Result};
 use super::{Collection, Folder, Folders, Image, Keyword, KeywordTree, Stack};
 
 const DB_FILENAME: &str = "Capture One Catalog.cocatalogdb";
@@ -68,45 +68,49 @@ impl Catalog {
         }
     }
 
-    pub fn open(&mut self) -> bool {
+    pub fn open(&mut self) -> Result<()> {
         let mut db_path = self.path.clone();
         self.db_only = !self.path.is_dir();
         if !self.db_only {
             db_path.push(DB_FILENAME);
         }
         let conn_attempt = Connection::open(&db_path);
-        self.dbconn = conn_attempt.ok();
-        self.dbconn.is_some()
+        self.dbconn = Some(conn_attempt?);
+
+        Ok(())
     }
 
-    pub fn load_version(&mut self) {
+    pub fn load_version(&mut self) -> Result<()> {
         if let Some(conn) = self.dbconn.as_ref() {
             if let Ok(mut stmt) =
                 conn.prepare("SELECT ZVERSION FROM ZVERSIONINFO ORDER BY Z_PK DESC")
             {
-                let mut rows = stmt.query(params![]).unwrap();
+                let mut rows = stmt.query(params![])?;
                 if let Ok(Some(row)) = rows.next() {
-                    self.version = row.get(0).unwrap();
+                    self.version = row.get(0)?;
                     self.catalog_version = CatalogVersion::from(self.version);
                 }
             }
             if self.catalog_version != CatalogVersion::Unknown {
                 if let Ok(mut stmt) = conn.prepare("SELECT Z_ENT, ZNAME FROM ZENTITIES") {
-                    let mut rows = stmt.query(params![]).unwrap();
+                    let mut rows = stmt.query(params![])?;
                     while let Ok(Some(row)) = rows.next() {
-                        let ent: CoId = row.get(0).unwrap();
-                        let name: String = row.get(1).unwrap();
+                        let ent: CoId = row.get(0)?;
+                        let name: String = row.get(1)?;
                         self.entities_id_to_name.insert(ent, name.clone());
                         self.entities_name_to_id.insert(name, ent);
                     }
                 }
                 if let Ok(mut stmt) = conn.prepare("SELECT ZROOTCOLLECTION FROM ZDOCUMENTCONTENT") {
-                    let mut rows = stmt.query(params![]).unwrap();
+                    let mut rows = stmt.query(params![])?;
                     if let Ok(Some(row)) = rows.next() {
-                        self.root_collection_id = row.get(0).unwrap();
+                        self.root_collection_id = row.get(0)?;
                     }
                 }
             }
+            Ok(())
+        } else {
+            Err(Error::NoDatabase)
         }
     }
 

@@ -62,113 +62,117 @@ struct ListArgs {
     sort: bool,
 }
 
-fn main() {
+fn main() -> c1::Result<()> {
     let args = Args::parse();
 
     match args.command {
         Command::List(args) => process_list(&args),
         Command::Dump(args) => process_dump(&args),
         Command::Audit => process_audit(&args),
-    };
+    }
 }
 
-fn process_list(args: &ListArgs) {
+fn process_list(args: &ListArgs) -> c1::Result<()> {
     let mut catalog = Catalog::new(&args.path);
-    if catalog.open() {
-        // XXX this is stupid everything fails if this isn't called.
-        catalog.load_version();
-        let folders = catalog.load_folders();
+    catalog.open()?;
 
-        let resolved_folders = BTreeMap::from_iter(folders.iter().map(|folder| {
-            let resolved = if folder.is_relative {
-                format!("./{}", folder.path_from_root)
-            } else {
-                format!("{}{}", folder.root_folder, folder.path_from_root)
-            };
-            (folder.id(), resolved)
-        }));
-        if args.dirs {
-            let mut dirs = resolved_folders.values().collect::<Vec<&String>>();
-            if args.sort {
-                dirs.sort_unstable();
-            }
-            dirs.iter().for_each(|folder| println!("{}", folder));
+    // XXX this is stupid everything fails if this isn't called.
+    catalog.load_version()?;
+    let folders = catalog.load_folders();
 
-            return;
-        }
-
-        let images = catalog.load_images();
-        let mut image_files = images
-            .iter()
-            .filter_map(|image| {
-                resolved_folders
-                    .get(&image.folder)
-                    .map(|folder| format!("{}/{}", folder, image.file_name))
-            })
-            .collect::<Vec<String>>();
+    let resolved_folders = BTreeMap::from_iter(folders.iter().map(|folder| {
+        let resolved = if folder.is_relative {
+            format!("./{}", folder.path_from_root)
+        } else {
+            format!("{}{}", folder.root_folder, folder.path_from_root)
+        };
+        (folder.id(), resolved)
+    }));
+    if args.dirs {
+        let mut dirs = resolved_folders.values().collect::<Vec<&String>>();
         if args.sort {
-            image_files.sort_unstable();
+            dirs.sort_unstable();
         }
-        image_files.iter().for_each(|file| println!("{file}"));
+        dirs.iter().for_each(|folder| println!("{}", folder));
+
+        return Ok(());
     }
+
+    let images = catalog.load_images();
+    let mut image_files = images
+        .iter()
+        .filter_map(|image| {
+            resolved_folders
+                .get(&image.folder)
+                .map(|folder| format!("{}/{}", folder, image.file_name))
+        })
+        .collect::<Vec<String>>();
+    if args.sort {
+        image_files.sort_unstable();
+    }
+    image_files.iter().for_each(|file| println!("{file}"));
+
+    Ok(())
 }
 
-fn process_dump(args: &DumpArgs) {
+fn process_dump(args: &DumpArgs) -> c1::Result<()> {
     let mut catalog = Catalog::new(&args.path);
-    if catalog.open() {
-        catalog.load_version();
-        println!("Catalog:");
-        println!(
-            "\tVersion: {} ({:?})",
-            catalog.version, catalog.catalog_version
-        );
-        println!("\tRoot collection id: {}", catalog.root_collection_id);
+    catalog.open()?;
 
-        match catalog.catalog_version {
-            CatalogVersion::Co1210 | CatalogVersion::Co1200 | CatalogVersion::Co1106 => {}
-            _ => {
-                println!("Unsupported catalog version");
-                return;
-            }
-        }
+    catalog.load_version()?;
+    println!("Catalog:");
+    println!(
+        "\tVersion: {} ({:?})",
+        catalog.version, catalog.catalog_version
+    );
+    println!("\tRoot collection id: {}", catalog.root_collection_id);
 
-        {
-            let keywordtree = catalog.load_keywords_tree();
-            let keywords = catalog.load_keywords();
-
-            if args.all || args.keywords {
-                dump_keywords(0, keywords, &keywordtree);
-            }
-        }
-
-        {
-            let folders = catalog.load_folders();
-            if args.all || args.folders {
-                dump_folders(folders);
-            }
-        }
-
-        {
-            let images = catalog.load_images();
-            if args.all || args.images {
-                dump_images(images);
-            }
-        }
-
-        {
-            let stacks = catalog.load_stacks();
-            if args.all || args.stacks {
-                dump_stacks(stacks);
-            }
-        }
-
-        {
-            let collections = catalog.load_collections();
-            if args.all || args.collections {
-                dump_collections(collections);
-            }
+    match catalog.catalog_version {
+        CatalogVersion::Co1210 | CatalogVersion::Co1200 | CatalogVersion::Co1106 => {}
+        _ => {
+            println!("Unsupported catalog version");
+            return Err(c1::Error::UnsupportedVersion);
         }
     }
+
+    {
+        let keywordtree = catalog.load_keywords_tree();
+        let keywords = catalog.load_keywords();
+
+        if args.all || args.keywords {
+            dump_keywords(0, keywords, &keywordtree);
+        }
+    }
+
+    {
+        let folders = catalog.load_folders();
+        if args.all || args.folders {
+            dump_folders(folders);
+        }
+    }
+
+    {
+        let images = catalog.load_images();
+        if args.all || args.images {
+            dump_images(images);
+        }
+    }
+
+    {
+        let stacks = catalog.load_stacks();
+        if args.all || args.stacks {
+            dump_stacks(stacks);
+        }
+    }
+
+    {
+        let collections = catalog.load_collections();
+        if args.all || args.collections {
+            dump_collections(collections);
+        }
+    }
+
+    Ok(())
 }
 
 fn print_keyword(level: i32, id: i64, keywords: &BTreeMap<CoId, Keyword>, tree: &KeywordTree) {
@@ -275,4 +279,6 @@ fn dump_collections(collections: &[Collection]) {
     println!("+---------+------------------------------------------+---------+-------");
 }
 
-fn process_audit(_: &Args) {}
+fn process_audit(_: &Args) -> c1::Result<()> {
+    Err(c1::Error::Unimplemented)
+}

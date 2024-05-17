@@ -14,6 +14,8 @@ mod keywords;
 mod keywordtree;
 mod stack;
 
+use thiserror::Error;
+
 pub use catalog::{Catalog, CatalogVersion};
 pub use collections::{Collection, CollectionType};
 pub use folders::{Folder, Folders};
@@ -23,3 +25,21 @@ pub use keywordtree::KeywordTree;
 pub use stack::Stack;
 
 pub type CoId = i64;
+
+#[derive(Error, Debug)]
+pub enum Error {
+    /// No database open.
+    #[error("No database.")]
+    NoDatabase,
+    /// Unimplemented
+    #[error("Unimplemented.")]
+    Unimplemented,
+    /// Unsupported catalog version.
+    #[error("LrCat: Unsupported catalog version.")]
+    UnsupportedVersion,
+    /// Sql Error.
+    #[error("Co: SQL error: {0}.")]
+    Sql(#[from] rusqlite::Error),
+}
+
+pub type Result<T> = std::result::Result<T, Error>;
