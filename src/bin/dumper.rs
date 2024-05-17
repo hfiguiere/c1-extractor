@@ -86,35 +86,35 @@ fn process_dump(args: &DumpArgs) {
             let keywords = catalog.load_keywords();
 
             if args.all || args.keywords {
-                dump_keywords(0, &keywords, &keywordtree);
+                dump_keywords(0, keywords, &keywordtree);
             }
         }
 
         {
             let folders = catalog.load_folders();
             if args.all || args.folders {
-                dump_folders(&folders);
+                dump_folders(folders);
             }
         }
 
         {
             let images = catalog.load_images();
             if args.all || args.images {
-                dump_images(&images);
+                dump_images(images);
             }
         }
 
         {
             let stacks = catalog.load_stacks();
             if args.all || args.stacks {
-                dump_stacks(&stacks);
+                dump_stacks(stacks);
             }
         }
 
         {
             let collections = catalog.load_collections();
             if args.all || args.collections {
-                dump_collections(&collections);
+                dump_collections(collections);
             }
         }
     }

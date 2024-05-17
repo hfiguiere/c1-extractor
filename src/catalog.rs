@@ -14,18 +14,13 @@ use super::{Collection, Folder, Folders, Image, Keyword, KeywordTree, Stack};
 
 const DB_FILENAME: &str = "Capture One Catalog.cocatalogdb";
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Default, PartialEq)]
 pub enum CatalogVersion {
+    #[default]
     Unknown,
     Co1106,
     Co1200,
     Co1210,
-}
-
-impl Default for CatalogVersion {
-    fn default() -> CatalogVersion {
-        CatalogVersion::Unknown
-    }
 }
 
 impl From<i32> for CatalogVersion {
@@ -151,7 +146,7 @@ impl Catalog {
         if self.folders.is_empty() {
             if let Some(ref conn) = self.dbconn {
                 if let Some(entity) = self.entities_name_to_id.get("PathLocation") {
-                    self.folders = Folder::load_objects(&conn, *entity);
+                    self.folders = Folder::load_objects(conn, *entity);
                 }
             }
         }

@@ -5,7 +5,6 @@
 */
 
 use super::CoId;
-use rusqlite;
 
 #[derive(Default)]
 pub struct Stack {

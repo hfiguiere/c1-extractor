@@ -4,12 +4,13 @@
  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-use super::CoId;
-use rusqlite;
 use std::fmt;
 
-#[derive(Debug)]
+use super::CoId;
+
+#[derive(Debug, Default)]
 pub enum ImageFormat {
+    #[default]
     Unknown,
     Jpeg,
     Raw,
@@ -35,12 +36,6 @@ impl fmt::Display for ImageFormat {
             ImageFormat::Movie => f.pad("MOVIE"),
             _ => f.pad("UNKNOWN"),
         }
-    }
-}
-
-impl Default for ImageFormat {
-    fn default() -> Self {
-        ImageFormat::Unknown
     }
 }
 

@@ -4,14 +4,14 @@
  file, You can obtain one at http://mozilla.org/MPL/2.0/.
 */
 
-use rusqlite;
 use std::collections::HashMap;
 use std::fmt;
 
 use super::CoId;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub enum CollectionType {
+    #[default]
     Invalid,
     /// AlbumCollection entity (ZNAME)
     Album(String),
@@ -23,12 +23,6 @@ pub enum CollectionType {
     CatalogInternalImages,
     /// CatalogFolderCollection (ZFOLDERLOCATION on ZPATHLOCATION `Folder`)
     Folder(CoId),
-}
-
-impl Default for CollectionType {
-    fn default() -> Self {
-        CollectionType::Invalid
-    }
 }
 
 impl fmt::Display for CollectionType {
