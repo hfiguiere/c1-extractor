@@ -7,7 +7,7 @@
 use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};
 
-use rusqlite::Connection;
+use rusqlite::{params, Connection};
 
 use super::CoId;
 use super::{Collection, Folder, Folders, Image, Keyword, KeywordTree, Stack};
@@ -84,26 +84,26 @@ impl Catalog {
             if let Ok(mut stmt) =
                 conn.prepare("SELECT ZVERSION FROM ZVERSIONINFO ORDER BY Z_PK DESC")
             {
-                let mut rows = stmt.query(&[]).unwrap();
-                if let Some(Ok(row)) = rows.next() {
-                    self.version = row.get(0);
+                let mut rows = stmt.query(params![]).unwrap();
+                if let Ok(Some(row)) = rows.next() {
+                    self.version = row.get(0).unwrap();
                     self.catalog_version = CatalogVersion::from(self.version);
                 }
             }
             if self.catalog_version != CatalogVersion::Unknown {
                 if let Ok(mut stmt) = conn.prepare("SELECT Z_ENT, ZNAME FROM ZENTITIES") {
-                    let mut rows = stmt.query(&[]).unwrap();
-                    while let Some(Ok(row)) = rows.next() {
-                        let ent: CoId = row.get(0);
-                        let name: String = row.get(1);
+                    let mut rows = stmt.query(params![]).unwrap();
+                    while let Ok(Some(row)) = rows.next() {
+                        let ent: CoId = row.get(0).unwrap();
+                        let name: String = row.get(1).unwrap();
                         self.entities_id_to_name.insert(ent, name.clone());
                         self.entities_name_to_id.insert(name, ent);
                     }
                 }
                 if let Ok(mut stmt) = conn.prepare("SELECT ZROOTCOLLECTION FROM ZDOCUMENTCONTENT") {
-                    let mut rows = stmt.query(&[]).unwrap();
-                    if let Some(Ok(row)) = rows.next() {
-                        self.root_collection_id = row.get(0);
+                    let mut rows = stmt.query(params![]).unwrap();
+                    if let Ok(Some(row)) = rows.next() {
+                        self.root_collection_id = row.get(0).unwrap();
                     }
                 }
             }
@@ -128,11 +128,11 @@ impl Catalog {
                     if let Ok(mut stmt) =
                         conn.prepare("SELECT Z_PK, ZNAME, ZPARENT FROM ZKEYWORD WHERE Z_ENT=?1")
                     {
-                        let mut rows = stmt.query(&[entity]).unwrap();
-                        while let Some(Ok(row)) = rows.next() {
-                            let name: String = row.get(1);
+                        let mut rows = stmt.query([entity]).unwrap();
+                        while let Ok(Some(row)) = rows.next() {
+                            let name: String = row.get(1).unwrap();
                             let keyword =
-                                Keyword::new(row.get(0), &name, row.get_checked(2).unwrap_or(0));
+                                Keyword::new(row.get(0).unwrap(), &name, row.get(2).unwrap_or(0));
                             self.keywords.insert(keyword.id(), keyword);
                         }
                     }

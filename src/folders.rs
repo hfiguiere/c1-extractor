@@ -30,13 +30,13 @@ impl Folder {
         if let Ok(mut stmt) = conn.prepare(
             "SELECT Z_PK, ZMACROOT, ZRELATIVEPATH, ZISRELATIVE FROM ZPATHLOCATION WHERE Z_ENT=?1",
         ) {
-            let mut rows = stmt.query(&[&entity]).unwrap();
-            while let Some(Ok(row)) = rows.next() {
+            let mut rows = stmt.query([&entity]).unwrap();
+            while let Ok(Some(row)) = rows.next() {
                 folders.push(Folder {
-                    id: row.get(0),
-                    is_relative: row.get(3),
-                    path_from_root: row.get(2),
-                    root_folder: row.get(1),
+                    id: row.get(0).unwrap(),
+                    is_relative: row.get(3).unwrap(),
+                    path_from_root: row.get(2).unwrap(),
+                    root_folder: row.get(1).unwrap(),
                 });
             }
         }

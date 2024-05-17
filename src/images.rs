@@ -57,19 +57,19 @@ impl Image {
     pub fn load_objects(conn: &rusqlite::Connection, entity: CoId) -> Vec<Image> {
         let mut images: Vec<Image> = vec![];
         if let Ok(mut stmt) = conn.prepare("SELECT Z_PK, ZIMAGEUUID, ZIMAGELOCATION, ZDISPLAYNAME, ZIMAGEFILENAME, ZIMAGECLASSIFICATION, ZEXP_FORMAT, ZGPSALTITUDE, ZGPSLATITUDE, ZGPSLONGITUDE FROM ZIMAGE WHERE Z_ENT=?1") {
-            let mut rows = stmt.query(&[&entity]).unwrap();
-            while let Some(Ok(row)) = rows.next() {
+            let mut rows = stmt.query([&entity]).unwrap();
+            while let Ok(Some(row)) = rows.next() {
                 images.push(Image {
-                    id: row.get(0),
-                    uuid: row.get(1),
-                    folder: row.get(2),
-                    display_name: row.get(3),
-                    file_name: row.get(4),
-                    class: row.get(5),
-                    format: ImageFormat::from(row.get::<usize, String>(6).as_str()),
-                    gps_alt: row.get_checked(7).ok(),
-                    gps_lat: row.get_checked(8).ok(),
-                    gps_long: row.get_checked(9).ok()
+                    id: row.get(0).unwrap(),
+                    uuid: row.get(1).unwrap(),
+                    folder: row.get(2).unwrap(),
+                    display_name: row.get(3).unwrap(),
+                    file_name: row.get(4).unwrap(),
+                    class: row.get(5).unwrap(),
+                    format: ImageFormat::from(row.get::<usize, String>(6).unwrap().as_str()),
+                    gps_alt: row.get::<usize, f64>(7).ok(),
+                    gps_lat: row.get::<usize, f64>(8).ok(),
+                    gps_long: row.get::<usize, f64>(9).ok()
                 });
             }
         }

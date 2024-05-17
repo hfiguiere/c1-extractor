@@ -21,12 +21,12 @@ impl Stack {
         if let Ok(mut stmt) =
             conn.prepare("SELECT Z_PK, ZCOLLECTION, ZPICKEDIMAGE FROM ZSTACK WHERE Z_ENT=?1")
         {
-            let mut rows = stmt.query(&[&entity]).unwrap();
-            while let Some(Ok(row)) = rows.next() {
+            let mut rows = stmt.query([&entity]).unwrap();
+            while let Ok(Some(row)) = rows.next() {
                 stacks.push(Stack {
-                    id: row.get(0),
-                    collection: row.get(1),
-                    pick: row.get(2),
+                    id: row.get(0).unwrap(),
+                    collection: row.get(1).unwrap(),
+                    pick: row.get(2).unwrap(),
                     content: None,
                 });
             }
@@ -38,9 +38,9 @@ impl Stack {
     pub fn get_content(&mut self, conn: &rusqlite::Connection) {
         let mut ids: Vec<CoId> = vec![];
         if let Ok(mut stmt) = conn.prepare("SELECT ZIMAGE FROM ZSTACKIMAGELINK WHERE ZSTACK=?1") {
-            let mut rows = stmt.query(&[&self.id]).unwrap();
-            while let Some(Ok(row)) = rows.next() {
-                ids.push(row.get(0));
+            let mut rows = stmt.query([&self.id]).unwrap();
+            while let Ok(Some(row)) = rows.next() {
+                ids.push(row.get(0).unwrap());
             }
             self.content = Some(ids);
         }

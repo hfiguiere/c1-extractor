@@ -7,6 +7,8 @@
 use std::collections::HashMap;
 use std::fmt;
 
+use rusqlite::params;
+
 use super::CoId;
 
 #[derive(Debug, Default)]
@@ -58,20 +60,22 @@ impl Collection {
         if let Ok(mut stmt) =
             conn.prepare("SELECT Z_ENT, Z_PK, ZNAME, ZPARENT, ZFOLDERLOCATION FROM ZCOLLECTION")
         {
-            let mut rows = stmt.query(&[]).unwrap();
-            while let Some(Ok(row)) = rows.next() {
-                let entity: CoId = row.get(0);
+            let mut rows = stmt.query(params![]).unwrap();
+            while let Ok(Some(row)) = rows.next() {
+                let entity: CoId = row.get(0).unwrap();
                 if let Some(entity_name) = entities.get(&entity) {
-                    let id: CoId = row.get(1);
-                    let parent: CoId = row.get_checked(3).unwrap_or(0);
+                    let id: CoId = row.get(1).unwrap();
+                    let parent: CoId = row.get(3).unwrap_or(0);
                     let collection_type = match entity_name.as_str() {
                         "ProjectCollection" => CollectionType::Project,
                         "CatalogAllImagesCollection" => CollectionType::CatalogAll,
                         "CatalogInternalImagesCollection" => CollectionType::CatalogInternalImages,
                         "TrashCollection" => CollectionType::Trash,
-                        "AlbumCollection" => CollectionType::Album(row.get(2)),
-                        "CatalogFolderCollection" => CollectionType::Folder(row.get(4)),
-                        "VirtualFolderCollection" => CollectionType::VirtualFolder(row.get(2)),
+                        "AlbumCollection" => CollectionType::Album(row.get(2).unwrap()),
+                        "CatalogFolderCollection" => CollectionType::Folder(row.get(4).unwrap()),
+                        "VirtualFolderCollection" => {
+                            CollectionType::VirtualFolder(row.get(2).unwrap())
+                        }
                         _ => {
                             println!("Unhandled entity {}", entity_name.as_str());
                             continue;
@@ -93,9 +97,9 @@ impl Collection {
     pub fn get_content(&mut self, conn: &rusqlite::Connection) {
         let mut ids: Vec<CoId> = vec![];
         if let Ok(mut stmt) = conn.prepare("SELECT Z_PK FROM ZSTACK WHERE ZCOLLECTION=?1") {
-            let mut rows = stmt.query(&[&self.id]).unwrap();
-            while let Some(Ok(row)) = rows.next() {
-                ids.push(row.get(0));
+            let mut rows = stmt.query([&self.id]).unwrap();
+            while let Ok(Some(row)) = rows.next() {
+                ids.push(row.get(0).unwrap());
             }
             self.content = Some(ids);
         }
