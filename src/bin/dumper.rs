@@ -23,8 +23,11 @@ struct Args {
 
 #[derive(Debug, Subcommand)]
 enum Command {
+    /// Dump the catalog.
     Dump(DumpArgs),
+    /// List the files / folders in the catalog.
     List(ListArgs),
+    /// Audit (Unimplemented)
     Audit,
 }
 
@@ -56,8 +59,10 @@ struct DumpArgs {
 struct ListArgs {
     /// Path to the catalog.
     path: PathBuf,
+    /// List only directory.
     #[arg(short)]
     dirs: bool,
+    /// Sort the list.
     #[arg(short)]
     sort: bool,
 }
